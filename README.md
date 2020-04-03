@@ -6,4 +6,4 @@ Why do some musical structures help you concentrate better?
 Can we program them? Can we learn them? This is a journey to tackle those questions and here I will share my process.
 
 My medium term goal is creating a simple service to stream personalized generative beats and ambient music 
-to help people focus better in whatever they choose to work on. 
+to help people focus better in whatever they choose to work on and more easily get in *la zona*
