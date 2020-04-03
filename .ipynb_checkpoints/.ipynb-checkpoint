@@ -2,7 +2,7 @@
  "cells": [
   {
    "cell_type": "code",
-   "execution_count": 3,
+   "execution_count": 100,
    "metadata": {},
    "outputs": [],
    "source": [
@@ -20,6 +20,105 @@
    "cell_type": "markdown",
    "metadata": {},
    "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 229,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def fall_on_beat(midifile):\n",
+    "    '''\n",
+    "        Function to generate deltas that make notes fall on the beat\n",
+    "    ''' \n",
+    "    ticks_per_beat = midifile.ticks_per_beat\n",
+    "    # Only choose between multiples of the ticks per beat\n",
+    "    delta = random.choice([i*ticks_per_beat//4 for i in range(0,4)])\n",
+    "    return delta\n",
+    "    \n",
+    "    \n",
+    "\n",
+    "def calculate_key(midi_note_number, key_type):\n",
+    "    '''\n",
+    "    midi_note_number: based on the MIDI standard\n",
+    "    key_type options:\n",
+    "        major\n",
+    "        minor_natural\n",
+    "    '''\n",
+    "    key = [midi_note_number]\n",
+    "    \n",
+    "    if key_type.lower() == 'major':\n",
+    "        # Major scales are formed by taking the follwing steps = Whole, Whole, Half, Whole, Whole, Whole, Half\n",
+    "        # Where whole steps are two semtitones and Half are one semitone. \n",
+    "        # Increasing the midi number means an increase of one semitone\n",
+    "        steps = ['W','W','H','W','W','W','H']\n",
+    "        for i in range(len(steps)):\n",
+    "            # If we need to take a whole step, increase by two, otherwise by one\n",
+    "            if steps[i] == 'W':\n",
+    "                midi_note_number = midi_note_number + 2\n",
+    "                key.append(midi_note_number)\n",
+    "            else:\n",
+    "                midi_note_number = midi_note_number + 1\n",
+    "                key.append(midi_note_number)\n",
+    "    elif key_type.lower() == 'minor natural':\n",
+    "        # Minor scales are formed by taking the follwing steps = Whole, Whole, Half, Whole, Whole, Whole, Half\n",
+    "        # Whole, Half, Whole, Whole, Half, Whole, Whole\n",
+    "        steps = ['W','H', 'W', 'W', 'H' ,'W', 'W']\n",
+    "        for i in range(len(steps)):\n",
+    "            # If we need to take a whole step, increase by two, otherwise by one\n",
+    "            if steps[i] == 'W':\n",
+    "                midi_note_number = midi_note_number + 2\n",
+    "                key.append(midi_note_number)\n",
+    "            else:\n",
+    "                midi_note_number = midi_note_number + 1\n",
+    "                key.append(midi_note_number)     \n",
+    "    return key\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Simple melody creation"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "key_options = ['major','minor natural']\n",
+    "key_selec = random.choice(key_options)\n",
+    "key = calculate_key(70, key_selec)\n",
+    "\n",
+    "outfile = MidiFile()\n",
+    "track = MidiTrack()\n",
+    "outfile.tracks.append(track)\n",
+    "\n",
+    "track.append(MetaMessage('set_tempo',tempo=500000))\n",
+    "\n",
+    "track.append(Message('program_change', program=12))\n",
+    "\n",
+    "for i in range(random.randint(4,12)):\n",
+    "    note = random.choice(key)\n",
+    "    print(note)\n",
+    "    track.append(Message('note_on', note=note, velocity=100, time=fall_on_beat(outfile)))\n",
+    "    #track.append(Message('note_off', note=note, velocity=100, time=2*fall_on_beat(outfile)))\n",
+    "\n",
+    "outfile.save('aver.mid')\n",
+    "\n",
+    "def playMidi(filename):\n",
+    "  mf = midi.MidiFile()\n",
+    "  mf.open(filename)\n",
+    "  mf.read()\n",
+    "  mf.close()\n",
+    "  s = midi.translate.midiFileToStream(mf)\n",
+    "  s.show('midi')\n",
+    "    \n",
+    "print(outfile.length)\n",
+    "playMidi('aver.mid')"
+   ]
   },
   {
    "cell_type": "markdown",
@@ -41,7 +140,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 5,
+   "execution_count": 289,
    "metadata": {},
    "outputs": [],
    "source": [
@@ -71,7 +170,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 6,
+   "execution_count": 281,
    "metadata": {},
    "outputs": [],
    "source": [
@@ -80,7 +179,7 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 7,
+   "execution_count": 307,
    "metadata": {},
    "outputs": [],
    "source": [
@@ -447,7 +546,7 @@
     "\n",
     "But what is the underlying reason for that? We evolved to obtain information from our environment in order to survive. Seeing is a way of aquiring information, as well as listening, tasting, smelling or touching. If you think about all the things that feel good, they all come from those senses. But why do they feel good? Since our brain is hard wired to seek information from the world for obvious survival advantages (acquiring information of the position of a predator nearby, or the presence of food in an area is very useful), our brain rewards you when you are engaging those senses in a way that they are acquiring the optimal (or close) amount of information. Note that I said optimal and not maximum because more is not necessary better. Too little information is not very helpful and too much is overwhelming, but the brain is able to identify when you are sensing an optimal rate of information and rewards you with pleasure so you keep looking, hearing, eating, smelling or touching whatever the source of information. \n",
     "\n",
-    "But the brain not only takes into account the amount of information that you are receiving. It also takes into account how much effort it tool for you to obtain it. It rewards you when it costs you an optimal amount of effort: not too much, not too little. So aethetic creation is a matter of balancing amount of information conveyed and amount of effort from the observer required to obtain it. \n",
+    "But the brain not only takes into account the amount of information that you are receiving. It also takes into account how much effort it tool for you to obtain it. It rewards you when it costs you an optimal amount of effort: not too much, not too little. So aethetic creation is a matter of balancing amount of information conveyed and amount of effort from the observer required to obtain it. That is the same reason why understanding something really simple is kinda rewarding, but understanding something kinda hard after a lot of effort is very rewarding. On the other hand, extrenely hard concepts that you never actually understand cause a negative reward and it feels bad. \n",
     "\n",
     "A quick note on what we understand for information. Information can be understood as a measure of randomness. Total randomness has the least amount of information, while determinate things have more. In the context of a beat for example, total randomness would be absolute noice. Our beat was not actually that random, so in fact can sound worse. We reduced its randomness by selecting which instruments to provide as options, defining the tempo and the shift range of possibilities. A total randomness of sound would carry no information and therefore it would certainly not cause any pleasure, maybe on the contrary, it would feel bad. That's your brain telling you stay away from that source of such uncertainity.\n",
     "\n",
@@ -455,7 +554,7 @@
     "\n",
     "It is a bit better, because now your brain has to predict more different sounds. This is more engaging and your brain rewards that a little more. \n",
     "\n",
-    "If we add a third sound, a hi-hat, that sounds in every beat, we add yet more complexity but now this starts to feel like an actual beat you could kinda dance or rap to. But if we start adding instruments like crazy, each sounding at different moments, like those crazy contemprary experimental jazz, your brain will have a tougher time predicting the sounds and will not reward you as much to tell you to stop that effort. \n",
+    "If we add a third sound, a hi-hat, that sounds in every beat, we add yet more complexity but now this starts to feel like an actual beat you could kinda dance or rap to. This is closer to the optimal point because But if we start adding instruments like crazy, each sounding at different moments, like those crazy contemprary experimental jazz, your brain will have a tougher time predicting the sounds and will not reward you as much to tell you to stop that effort. \n",
     "\n",
     "How can we estimate that optimal point of effort and information conveyed. Music theory, which was developed through years of iterations, tell us that simpler relationships or ratios between the elements of a piece, be it visual or musical or whatever, are more pleasant. So let's test it. "
    ]
